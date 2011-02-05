@@ -1,0 +1,28 @@
+body {padding: 1em;}
+span.pagetitle { display:block; font-weight: bold; font-size: 150%; text-align: center; margin-bottom: 1em; }
+
+span.title { display:inline-block; font-weight: bold; font-size: 125%; margin-bottom: 0.5em; }
+ul li { display: inline; }
+ul.list li { display: block; }
+ul li label { padding-left: 2em; padding-right: 0.5em; }
+ul { margin-bottom: 1em; }
+
+ul.errorlist { padding: 0.5em; border: 2px solid #BF0000; background-color: #FFDFDF; text-align: center; }
+
+strong { font-weight: bold; }
+
+span.remove { float: right; }
+
+p label { display: inline-block; min-width: 3em; margin-right: 1em; }
+div.tags p, div.details p { margin-bottom: 0.5em; }
+
+div.subform { display: inline; margin-right: 1em; }
+
+div.subform div { display: inline-block; vertical-align: top; }
+div.subform > div { border: 2px solid black; padding: 0.5em 2em 1em 1em; margin-bottom: 2em; }
+div.subform > div {
+-moz-box-shadow: 0 0 5px 3px black;
+-webkit-box-shadow: 0 0 5px 3px black;
+box-shadow: 0 0 5px 3px black;
+}
+div.tags { margin-right: 2em; }

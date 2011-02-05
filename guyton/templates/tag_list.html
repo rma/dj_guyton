@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>List of tags</title>
+    <link rel="stylesheet" href="../site_media/reset.css" type="text/css">
+    <link rel="stylesheet" href="../site_media/style.css" type="text/css">
+</head>
+<body>
+
+<span class="pagetitle">List of tags</span>
+
+<div class="mainform">
+<div class="subform">
+<div class="tags">
+  <ul class="list">
+    {% for tag in object_list %}
+    <li>{{ tag.name }}: {{ tag.description }}</li>
+    {% endfor %}
+  </ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>

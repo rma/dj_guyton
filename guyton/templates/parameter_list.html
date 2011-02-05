@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>List of parameters</title>
+    <link rel="stylesheet" href="../site_media/reset.css" type="text/css">
+    <link rel="stylesheet" href="../site_media/style.css" type="text/css">
+</head>
+<body>
+
+<span class="pagetitle">List of parameters</span>
+
+<div class="mainform">
+<div class="subform">
+<div class="params">
+  <ul class="list">
+    {% for param in object_list %}
+    <li>{{ param.name }} ({{ param.units }}): {{ param.description }}</li>
+    {% endfor %}
+  </ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>

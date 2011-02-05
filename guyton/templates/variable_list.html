@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>List of variables</title>
+    <link rel="stylesheet" href="../site_media/reset.css" type="text/css">
+    <link rel="stylesheet" href="../site_media/style.css" type="text/css">
+</head>
+<body>
+
+<span class="pagetitle">List of variables</span>
+
+<div class="mainform">
+<div class="subform">
+<div class="vars">
+  <ul class="list">
+    {% for var in object_list %}
+    <li>{{ var.name }} ({{ var.units }}): {{ var.description }}</li>
+    {% endfor %}
+  </ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 import os
 import os.path
 
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.formsets import formset_factory, BaseFormSet
@@ -83,11 +83,19 @@ def index(request):
 
     if request.method == 'POST' and valid and not modified:
         if action == 'Submit':
-            #matches = find(data)
-            #return response(matches, data['out'])
-            task = OutputTask.create_new(data)
-            generateOutput(task.id)
-            return HttpResponseRedirect("tasks/" + task.sha256_id)
+            matches = find(data)
+            total = Experiment.objects.count()
+            matched = matches.count()
+            return render_to_response('matches.html', {
+                'matched': matched,
+                'total': total,
+                'param_formset': forms['params'],
+                'var_formset': forms['vars'],
+                'tag_formset': forms['tags'],
+                'exp_form': forms['exp'],
+                'out_form': forms['out'],
+                'log_str': log_str,
+            }, context_instance=RequestContext(request))
         else:
             err_msg = 'Invalid request: ' + action
             raise Http404(err_msg)
@@ -100,6 +108,39 @@ def index(request):
         'out_form': forms['out'],
         'log_str': log_str,
     }, context_instance=RequestContext(request))
+
+def do_query(request):
+    log_str = ""
+
+    forms = {
+        'params': (guyton.queryforms.ParamCondForm, True),
+        'vars': (guyton.queryforms.VarCondForm, True),
+        'tags': (guyton.queryforms.TagCondForm, True),
+        'exp': (guyton.queryforms.ExpCondForm, False),
+        'out': (guyton.queryforms.OutputChoiceForm, False),
+        }
+
+    action = request.POST.get('form-submit')
+    (forms, data, valid, modified) = validate_forms(request, action, forms)
+
+    if request.method == 'POST' and valid and not modified:
+        if action == 'Submit Query':
+            task = OutputTask.create_new(data)
+            generateOutput(task.id)
+            return HttpResponseRedirect("tasks/" + task.sha256_id)
+        elif action == 'Modify Query':
+            return render_to_response('search.html', {
+                'param_formset': forms['params'],
+                'var_formset': forms['vars'],
+                'tag_formset': forms['tags'],
+                'exp_form': forms['exp'],
+                'out_form': forms['out'],
+                'log_str': log_str,
+            }, context_instance=RequestContext(request))
+        else:
+            err_msg = 'Invalid request: ' + action
+            raise Http404(err_msg)
+
 
 def list_details(request):
     model_list = Model.objects.all().order_by('name')

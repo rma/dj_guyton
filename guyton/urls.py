@@ -20,6 +20,7 @@ tag_info = {
 
 urlpatterns = patterns('guyton.views',
     (r'^$', 'index'),
+    (r'^do_query$', 'do_query'),
     (r'^params/$', list_detail.object_list, par_info),
     (r'^vars/$', list_detail.object_list, var_info),
     (r'^tags/$', list_detail.object_list, tag_info),

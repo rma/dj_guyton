@@ -1,0 +1,92 @@
+<html>
+<head>
+    <title>Search the simulation results</title>
+    <link rel="stylesheet" href="site_media/reset.css" type="text/css">
+    <link rel="stylesheet" href="site_media/style.css" type="text/css">
+</head>
+<body>
+
+<!-- <span class="pagetitle">Search the simulation results</span> -->
+
+<form action="/guyton/do_query" method="post">{% csrf_token %}
+  <div class="mainform" style="display:none">
+  <div class="subform">
+  <div class="params">
+    {{ param_formset.management_form }}
+    <span class="title">Parameters</span>
+    <span class="info">(<a href="params" target="_blank">list</a>)</span>
+      {% for form in param_formset.forms %}
+      <ul>
+        {{ form.as_ul }}
+      </ul>
+      {% endfor %}
+    <input type="submit" name='form-submit' value="Add Parameter" />
+    <span class="remove">
+    <input type="submit" name='form-submit' value="Remove Parameters" />
+    </span>
+  </div>
+  </div>
+  <div class="subform">
+  <div class="vars">
+    {{ var_formset.management_form }}
+    <span class="title">Variables</span>
+    <span class="info">(<a href="vars" target="_blank">list</a>)</span>
+      {% for form in var_formset.forms %}
+      <ul>
+      {{ form.as_ul }}
+      </ul>
+      {% endfor %}
+    <input type="submit" name='form-submit' value="Add Variable" />
+    <span class="remove">
+    <input type="submit" name='form-submit' value="Remove Variables" />
+    </span>
+  </div>
+  </div>
+  <div class="subform">
+  <div class="tags">
+    {{ tag_formset.management_form }}
+    <span class="title">Tags</span>
+    <span class="info">(<a href="tags" target="_blank">list</a>)</span>
+      {% for form in tag_formset.forms %}
+      <ul>
+        {{ form.as_ul }}
+      </ul>
+      {% endfor %}
+    <input type="submit" name='form-submit' value="Add Tag" />
+    <span class="remove">
+    <input type="submit" name='form-submit' value="Remove Tags" />
+    </span>
+  </div>
+  </div>
+  <div class="subform">
+  <div class="details">
+    <span class="title">Details</span>
+    <span class="info">(<a href="details" target="_blank">list</a>)</span>
+        {{ exp_form.as_p }}
+  </div>
+  </div>
+
+  <div class="subform">
+  <div class="output">
+    <span class="title">Output</span>
+        {{ out_form.as_p }}
+  </div>
+  </div>
+  </div>
+
+  <div>
+    <center>
+      <span class="title">{{ matched }} out of {{ total }} individuals match
+        your query.</span><br/>
+      <input type="submit" name='form-submit' value="Modify Query" />
+      <input type="submit" name='form-submit' value="Submit Query" />
+    </center>
+  </div>
+</form>
+
+<pre>
+{{ log_str }}
+</pre>
+
+</body>
+</html>

@@ -1,12 +1,16 @@
-from django.http import Http404
-from django.shortcuts import render_to_response
+import os
+import os.path
+
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.formsets import formset_factory, BaseFormSet
 
 import guyton.queryforms
-from guyton.models import Model, Experiment
+from guyton.models import Model, Experiment, OutputTask
 from guyton.search import find
 from guyton.format import response
+from guyton.tasks import generateOutput
 
 def validate_form(form, action, modify_form=False):
     if form.is_valid():
@@ -79,9 +83,11 @@ def index(request):
 
     if request.method == 'POST' and valid and not modified:
         if action == 'Submit':
-            matches = find(data['params'], data['vars'],
-                           data['tags'], data['exp'])
-            return response(matches, data['out'])
+            #matches = find(data)
+            #return response(matches, data['out'])
+            task = OutputTask.create_new(data)
+            generateOutput(task.id)
+            return HttpResponseRedirect("tasks/" + task.sha256_id)
         else:
             err_msg = 'Invalid request: ' + action
             raise Http404(err_msg)
@@ -106,3 +112,15 @@ def list_details(request):
         'user_list': user_list,
         'host_list': host_list,
     }, context_instance=RequestContext(request))
+
+def show_task(request, task_hash):
+    action = request.POST.get('form-submit')
+    task = get_object_or_404(OutputTask, sha256_id=task_hash)
+    if request.method == 'POST' and action == 'Delete Results':
+        task.remove_task()
+        return HttpResponseRedirect("/")
+    else:
+        result_url = "../../site_media/tasks/" + task_hash + ".tar.bz2"
+        return render_to_response('task.html',
+            {'task': task, 'url': result_url},
+            context_instance=RequestContext(request))

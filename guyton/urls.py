@@ -24,6 +24,7 @@ urlpatterns = patterns('guyton.views',
     (r'^vars/$', list_detail.object_list, var_info),
     (r'^tags/$', list_detail.object_list, tag_info),
     (r'^details/$', 'list_details'),
+    (r'^tasks/(?P<task_hash>[0-9a-f]{64})/$', 'show_task'),
 )
 
 urlpatterns += patterns('',

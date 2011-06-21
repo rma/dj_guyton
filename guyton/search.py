@@ -1,6 +1,10 @@
 from guyton.models import Experiment
 
-def find(param_data, var_data, tag_data, exp_data):
+def find(search_data, just_sql=False):
+    param_data = search_data['params']
+    var_data = search_data['vars']
+    tag_data = search_data['tags']
+    exp_data = search_data['exp']
     matches = Experiment.objects.all()
 
     for p in param_data:
@@ -27,6 +31,9 @@ def find(param_data, var_data, tag_data, exp_data):
             # Bug #14645
             # http://code.djangoproject.com/ticket/14645
             pass
+            # matches = matches.extra(where=['NOT ("par_value"."parameter" = %s '
+            #     'AND "par_value"."value" = %s)'],
+            #     params=[p['param'].id, p['value']])
         elif p['operator'] == 'LT':
             if int(p['when']) == 0:
                 matches = matches.filter(
@@ -115,6 +122,9 @@ def find(param_data, var_data, tag_data, exp_data):
             # Bug #14645
             # http://code.djangoproject.com/ticket/14645
             pass
+            # matches = matches.extra(where=['NOT ("var_value"."variable" = %s '
+            #     'AND "var_value"."value" = %s)'],
+            #     params=[(v['var'].id, v['value'])])
         elif v['operator'] == 'LT':
             if int(v['when']) == 0:
                 matches = matches.filter(
@@ -170,5 +180,7 @@ def find(param_data, var_data, tag_data, exp_data):
     if which_host is not None and len(which_host) > 0:
         matches = matches.filter(on_host__exact=which_host)
 
-    matches = matches.distinct()
-    return matches
+    if just_sql:
+        return str(matches.query)
+    else:
+        return matches.distinct()

@@ -73,7 +73,14 @@
   </div>
   </div>
   </div>
-  <input type="submit" name='form-submit' value="Submit" />
+  {% if matched %}
+    <span class="title">{{ matched }} out of {{ total }} individuals match
+      your query.</span><br/>
+    <input type="submit" name='form-submit' value="Check Matches" />
+    <input type="submit" name='form-submit' value="Submit Query" />
+  {% else %}
+    <input type="submit" name='form-submit' value="Check Matches" />
+  {% endif %}
 </form>
 
 <pre>

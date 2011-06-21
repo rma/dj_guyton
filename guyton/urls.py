@@ -3,7 +3,7 @@ import os
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
 
-from guyton.models import Parameter, Variable, Tag
+from guyton.models import Parameter, Variable, Tag, OutputTask
 
 par_info = {
     'queryset': Parameter.objects.order_by('name'),
@@ -17,6 +17,10 @@ tag_info = {
     'queryset': Tag.objects.order_by('name'),
     'template_name': 'tag_list.html',
 }
+task_info = {
+    'queryset': OutputTask.objects.all(),
+    'template_name': 'task_list.html',
+}
 
 urlpatterns = patterns('guyton.views',
     (r'^$', 'index'),
@@ -24,6 +28,7 @@ urlpatterns = patterns('guyton.views',
     (r'^vars/$', list_detail.object_list, var_info),
     (r'^tags/$', list_detail.object_list, tag_info),
     (r'^details/$', 'list_details'),
+    (r'^tasks/$', list_detail.object_list, task_info),
     (r'^tasks/(?P<task_hash>[0-9a-f]{64})/$', 'show_task'),
 )
 

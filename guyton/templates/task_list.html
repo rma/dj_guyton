@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>List of submitted queries</title>
+    <link rel="stylesheet" href="../site_media/reset.css" type="text/css">
+    <link rel="stylesheet" href="../site_media/style.css" type="text/css">
+</head>
+<body>
+
+<span class="pagetitle">List of submitted queries</span>
+
+<div class="mainform">
+<div class="subform">
+<div class="queries">
+  <ul class="list">
+    {% for task in object_list %}
+    <li><a href="{{ task.sha256_id }}">{{ task.sha256_id }}</a></li>
+    {% empty %}
+    <span class="title">No submitted queries</span>
+    {% endfor %}
+  </ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>

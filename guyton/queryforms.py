@@ -4,12 +4,12 @@ from django.core import validators
 
 from models import Parameter, Variable, Tag, Model
 
-op_choices = (('EQ', '='), ('NE', '!='), ('LT', '<'),
+op_choices = (('EQ', '='), ('LT', '<'),
               ('LE', '<='), ('GT', '>'), ('GE', '>='))
 
 # TODO -- derive this list from TIME_DETAIL
 time_choices = ((0, 'Any Time'), (1, 'Pre-perturbation'),
-                (2, '5 Minutes'), (3, '1 Hour'), (4, '1 Day'),
+                (2, '1 Minute'), (3, '1 Hour'), (4, '1 Day'),
                 (5, '1 Week'), (6, '4 Weeks'),)
 
 param_times = ((0, 'Any Time'), (1, 'Pre-perturbation'),

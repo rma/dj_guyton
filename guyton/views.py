@@ -82,10 +82,10 @@ def index(request):
     (forms, data, valid, modified) = validate_forms(request, action, forms)
 
     if request.method == 'POST' and valid and not modified:
-        if action == 'Check Matches':
+        if action == 'Count Matches':
             matches = find(data)
             total = Experiment.objects.count()
-            matched = matches.count()
+            matched = str(matches.count())
             return render_to_response('search.html', {
                 'matched': matched,
                 'total': total,

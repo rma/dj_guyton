@@ -8,7 +8,7 @@ from django.forms.formsets import formset_factory, BaseFormSet
 
 import guyton.queryforms
 from guyton.models import Model, Experiment, OutputTask
-from guyton.search import find
+from guyton.search import find, describe
 from guyton.format import response
 from guyton.tasks import generateOutput
 
@@ -97,9 +97,41 @@ def index(request):
                 'log_str': log_str,
             }, context_instance=RequestContext(request))
         elif action == 'Submit Query':
-            task = OutputTask.create_new(data)
-            generateOutput(task.id)
-            return HttpResponseRedirect("tasks/" + task.sha256_id)
+            matches = find(data)
+            total = matches.count()
+            fmt = lambda n, v, t: "%s %s %s" % (t, n, v)
+            count = 1
+
+            # Save the search criteria at the start of the file
+            out_lines = ['\n'.join(describe(data))]
+
+            for experiment in matches:
+                # Initial parameter values
+                p_vals = experiment.paramvalue_set.filter(at_time__exact=0)
+                # Changes to parameter values
+                p_dels = experiment.paramvalue_set.filter(at_time__gt=0)
+
+                # Start each experiment with a 'BEGIN' header
+                exp_lines = ["# BEGIN experiment %d of %d" % (count, total)]
+                # Save the initial parameter values
+                exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
+                                  for p in p_vals])
+                # Save the parameter perturbations
+                exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
+                                  for p in p_dels])
+                # End each experiment with a 'END' footer
+                exp_lines.append("# END experiment %d of %d" % (count, total))
+
+                # Append this experiment to the list of matches
+                out_lines.append("\n".join(exp_lines))
+                count += 1
+
+            resp = HttpResponse("\n\n\n".join(out_lines), mimetype="text/plain")
+            resp['Content-Disposition'] = 'attachment; filename=results.txt'
+            return resp
+            # task = OutputTask.create_new(data)
+            # generateOutput(task.id)
+            # return HttpResponseRedirect("tasks/" + task.sha256_id)
         else:
             err_msg = 'Invalid request: ' + action
             raise Http404(err_msg)

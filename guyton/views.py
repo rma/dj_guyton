@@ -11,6 +11,7 @@ from guyton.models import Model, Experiment, OutputTask
 from guyton.search import find, describe
 from guyton.format import response
 from guyton.tasks import generateOutput
+from guyton.compress import compress_files
 
 def validate_form(form, action, modify_form=False):
     if form.is_valid():
@@ -102,8 +103,8 @@ def index(request):
             fmt = lambda n, v, t: "%s %s %s" % (t, n, v)
             count = 1
 
-            # Save the search criteria at the start of the file
-            out_lines = ['\n'.join(describe(data))]
+            # Save the search criteria as the first file
+            out_files.append(describe(data, comment_str=""))
 
             for experiment in matches:
                 # Initial parameter values
@@ -111,23 +112,29 @@ def index(request):
                 # Changes to parameter values
                 p_dels = experiment.paramvalue_set.filter(at_time__gt=0)
 
-                # Start each experiment with a 'BEGIN' header
-                exp_lines = ["# BEGIN experiment %d of %d" % (count, total)]
+                exp_lines = []
                 # Save the initial parameter values
                 exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
                                   for p in p_vals])
                 # Save the parameter perturbations
                 exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
                                   for p in p_dels])
-                # End each experiment with a 'END' footer
-                exp_lines.append("# END experiment %d of %d" % (count, total))
 
-                # Append this experiment to the list of matches
-                out_lines.append("\n".join(exp_lines))
+                # Append this experiment to the list of files
+                out_files.append(exp_lines)
                 count += 1
 
-            resp = HttpResponse("\n\n\n".join(out_lines), mimetype="text/plain")
-            resp['Content-Disposition'] = 'attachment; filename=results.txt'
+            # Define the name of each file; the first one contains the search
+            # critera, the others contain the parameter values for each
+            # matching experiment.
+            def fname(num):
+                if num == 1:
+                    return 'query.txt'
+                else:
+                    return 'experiment%d.txt' % (num - 1,)
+
+            resp = compress_files(out_files, fname, 'results')
+
             return resp
             # task = OutputTask.create_new(data)
             # generateOutput(task.id)

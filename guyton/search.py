@@ -1,3 +1,5 @@
+import time
+
 from guyton.models import Experiment, Parameter, Variable, Tag, Model
 
 def find(search_data, just_sql=False):
@@ -196,7 +198,8 @@ def describe(search_data, comment_str='# '):
     which_user = exp_data['user']
     which_host = exp_data['host']
 
-    constraints = ['Query Constraints:']
+    constraints = ['Query submitted at %s' % (time.strftime('%c'),), '']
+    constraints.append('Constraints:')
 
     for p in param_data:
         if p['param'] is None:

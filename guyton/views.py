@@ -7,10 +7,8 @@ from django.template import RequestContext
 from django.forms.formsets import formset_factory, BaseFormSet
 
 import guyton.queryforms
-from guyton.models import Model, Experiment, OutputTask
+from guyton.models import Individual
 from guyton.search import find, describe
-from guyton.format import response
-from guyton.tasks import generateOutput
 from guyton.compress import compress_files
 
 def validate_form(form, action, modify_form=False):
@@ -74,9 +72,6 @@ def index(request):
     forms = {
         'params': (guyton.queryforms.ParamCondForm, True),
         'vars': (guyton.queryforms.VarCondForm, True),
-        'tags': (guyton.queryforms.TagCondForm, True),
-        'exp': (guyton.queryforms.ExpCondForm, False),
-        'out': (guyton.queryforms.OutputChoiceForm, False),
         }
 
     action = request.POST.get('form-submit')
@@ -85,40 +80,36 @@ def index(request):
     if request.method == 'POST' and valid and not modified:
         if action == 'Count Matches':
             matches = find(data)
-            total = Experiment.objects.count()
+            total = Individual.objects.count()
             matched = str(matches.count())
             return render_to_response('search.html', {
                 'matched': matched,
                 'total': total,
                 'param_formset': forms['params'],
                 'var_formset': forms['vars'],
-                'tag_formset': forms['tags'],
-                'exp_form': forms['exp'],
-                'out_form': forms['out'],
                 'log_str': log_str,
             }, context_instance=RequestContext(request))
         elif action == 'Submit Query':
             matches = find(data)
             total = matches.count()
-            fmt = lambda n, v, t: "%s %s %s" % (t, n, v)
+            fmt = lambda name, value: "%s %s" % (name.lower(), value)
             count = 1
 
             # Save the search criteria as the first file
+            out_files = []
             out_files.append(describe(data, comment_str=""))
 
-            for experiment in matches:
-                # Initial parameter values
-                p_vals = experiment.paramvalue_set.filter(at_time__exact=0)
-                # Changes to parameter values
-                p_dels = experiment.paramvalue_set.filter(at_time__gt=0)
-
+            for individual in matches:
                 exp_lines = []
+                param_vals = individual.indivparam_set.all()
+
                 # Save the initial parameter values
-                exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
-                                  for p in p_vals])
-                # Save the parameter perturbations
-                exp_lines.extend([fmt(p.parameter.name, p.value, p.at_time)
-                                  for p in p_dels])
+                exp_lines.extend([fmt(p.value.parameter.name, p.value.value)
+                                  for p in param_vals])
+
+                # Ensure the simulation runs for a minimum of 5 weeks
+                exp_lines.append("")
+                exp_lines.append("t= 50400.0")
 
                 # Append this experiment to the list of files
                 out_files.append(exp_lines)
@@ -131,14 +122,11 @@ def index(request):
                 if num == 1:
                     return 'query.txt'
                 else:
-                    return 'experiment%d.txt' % (num - 1,)
+                    return 'individual%d.txt' % (num - 1,)
 
             resp = compress_files(out_files, fname, 'results')
 
             return resp
-            # task = OutputTask.create_new(data)
-            # generateOutput(task.id)
-            # return HttpResponseRedirect("tasks/" + task.sha256_id)
         else:
             err_msg = 'Invalid request: ' + action
             raise Http404(err_msg)
@@ -146,32 +134,5 @@ def index(request):
     return render_to_response('search.html', {
         'param_formset': forms['params'],
         'var_formset': forms['vars'],
-        'tag_formset': forms['tags'],
-        'exp_form': forms['exp'],
-        'out_form': forms['out'],
         'log_str': log_str,
     }, context_instance=RequestContext(request))
-
-def list_details(request):
-    model_list = Model.objects.all().order_by('name')
-    sort_field = lambda f: Experiment.objects.values(f).distinct().order_by(f)
-    user_list = sort_field('by_user')
-    host_list = sort_field('on_host')
-
-    return render_to_response('detail_list.html', {
-        'model_list': model_list,
-        'user_list': user_list,
-        'host_list': host_list,
-    }, context_instance=RequestContext(request))
-
-def show_task(request, task_hash):
-    action = request.POST.get('form-submit')
-    task = get_object_or_404(OutputTask, sha256_id=task_hash)
-    if request.method == 'POST' and action == 'Delete Results':
-        task.remove_task()
-        return HttpResponseRedirect("/")
-    else:
-        result_url = "../../site_media/tasks/" + task_hash + ".tar.bz2"
-        return render_to_response('task.html',
-            {'task': task, 'url': result_url},
-            context_instance=RequestContext(request))

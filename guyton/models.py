@@ -1,44 +1,4 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#     * Rearrange models' order
-#     * Make sure each model has one field with primary_key=True
-# Feel free to rename the models, but don't rename db_table values or field names.
-#
-# Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
-# into your database.
-
-import cPickle
-import datetime
-import hashlib
-import os
-
 from django.db import models
-
-class OutputTask(models.Model):
-    sha256_id = models.CharField(max_length=70)
-    search_form = models.TextField()
-    is_finished = models.BooleanField()
-    output_file = models.CharField(max_length=96)
-
-    @staticmethod
-    def create_new(search_data):
-        search_str = cPickle.dumps(search_data)
-        hash = hashlib.sha256()
-        hash.update(str(datetime.datetime.utcnow()))
-        hash.update(search_str)
-        sha256_id = hash.hexdigest()
-        output_file = sha256_id + '.tar.bz2'
-        task = OutputTask.objects.create(sha256_id=sha256_id,
-            search_form=search_str, is_finished=False, output_file=output_file)
-        return task
-
-    def output_abs_path(self):
-        return os.path.join(os.path.dirname(__file__),
-            'site_media', 'tasks', self.output_file)
-
-    def remove_task(self):
-        os.remove(self.output_abs_path())
-        self.delete()
 
 class Model(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -123,3 +83,21 @@ class VarValue(models.Model):
     of_interest = models.BooleanField()
     class Meta:
         db_table = u'var_value'
+
+class Individual(models.Model):
+    experiment = models.ForeignKey(Experiment, db_column='experiment')
+    perturbed = models.BooleanField()
+    class Meta:
+        db_table = u'individual'
+
+class IndivParam(models.Model):
+    individual = models.ForeignKey(Individual, db_column='individual')
+    value = models.ForeignKey(ParamValue, db_column='value')
+    class Meta:
+        db_table = u'indiv_param'
+
+class IndivVar(models.Model):
+    individual = models.ForeignKey(Individual, db_column='individual')
+    value = models.ForeignKey(VarValue, db_column='value')
+    class Meta:
+        db_table = u'indiv_var'

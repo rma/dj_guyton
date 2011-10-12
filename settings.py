@@ -89,11 +89,6 @@ INSTALLED_APPS = (
     # 'debug_toolbar',
     # The interface to the Guyton simulation data:
     'guyton',
-    # Django-celery
-    'djcelery',
 )
 
 from settings_private import *
-
-import djcelery
-djcelery.setup_loader()

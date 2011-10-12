@@ -1,24 +1,23 @@
 <html>
 <head>
-    <title>List of submitted queries</title>
+    <title>Available models</title>
     <link rel="stylesheet" href="../site_media/reset.css" type="text/css">
     <link rel="stylesheet" href="../site_media/style.css" type="text/css">
 </head>
 <body>
 
-<span class="pagetitle">List of submitted queries</span>
+<span class="pagetitle">Available models</span>
 
 <div class="mainform">
 <div class="subform">
-<div class="queries">
+<div class="models">
+  <span class="title">Models</span>
   <ul class="list">
-    {% for task in object_list %}
-    <li><a href="{{ task.sha256_id }}">{{ task.sha256_id }}</a></li>
-    {% empty %}
-    <span class="title">No submitted queries</span>
+    {% for model in object_list %}
+    <li>{{ model.name }}: {{ model.description }}.
+      <strong>See:</strong> {{ model.reference }}</li>
     {% endfor %}
   </ul>
-</div>
 </div>
 </div>
 

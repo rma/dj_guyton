@@ -9,9 +9,6 @@ Prerequisite software:
 
 * [Python](http://www.python.org/)
 * [Django](https://www.djangoproject.com/)
-* [Celery](http://celeryproject.org/)
-* [RabbitMQ](http://www.rabbitmq.com/) (or any other message broker supported
-  by `Celery`)
 
 Notes
 ------------------------------------------------------------------------------
@@ -25,8 +22,7 @@ settings) run the following command:
 
 To run this project via the built-in Django webserver (**not for use in a
 production setting**), first ensure that the database is populated with the
-necessary tables (`python manage.py syncdb`) and then run the following two
-commands in parallel:
+necessary tables (`python manage.py syncdb`) and then run the following
+command:
 
-* `python manage.py celeryd -l info`
 * `python manage.py runserver`

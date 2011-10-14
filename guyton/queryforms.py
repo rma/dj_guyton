@@ -39,3 +39,30 @@ class ModelForm(forms.Form):
     model = forms.ModelChoiceField(Model.objects.order_by('name'),
                                       label='Model', required=True,
                                       initial=Model.objects.all()[0].id)
+
+clin_choices = (('Plasma', (('CNA', '[Na] (mEq/L)'),
+                            ('CKE', '[K] (mEq/L)'),
+                            ('PLURC', '[Urea] (mEq/L)'),
+                            ('CPP', 'Plasma protein (g/L)')
+                           )),
+                ('Cardiac', (('HM', 'Hematocrit (0 - 1)'),
+                             ('PA', 'MAP (mmHg)'),
+                             ('HR', 'Heart Rate (min^-1)')
+                            )),
+                ('Renal', (('GFR', 'GFR (L/min)'),)
+                ))
+
+
+class ClinicalCondForm(forms.Form):
+    ADD_ACTION = 'add-cond'
+    DEL_ACTION = 'del-cond'
+    DEL_FIELD = 'sel'
+    DEFAULT_DATA = {'cond': None, 'operator': u'EQ', 'value': None,
+                    'sel': False}
+
+    cond = forms.ChoiceField(clin_choices, label='Measurement',
+                             required=False)
+    operator = forms.ChoiceField(op_choices, label='Relationship',
+                                 required=False)
+    value = forms.DecimalField(label='Value', required=False)
+    sel = forms.BooleanField(label='Remove', required=False)

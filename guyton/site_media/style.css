@@ -1,5 +1,5 @@
 body {padding: 1em;}
-span.pagetitle { display:block; font-weight: bold; font-size: 150%; text-align: center; margin-bottom: 1em; }
+span.pagetitle { display: inline-block; font-weight: bold; font-size: 150%; text-align: left; margin-bottom: 1em; }
 
 span.title { display:inline-block; font-weight: bold; font-size: 125%; margin-bottom: 0.5em; }
 ul li { display: inline; }

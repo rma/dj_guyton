@@ -11,34 +11,17 @@
 <form action="/guyton/" method="post">{% csrf_token %}
   <div class="mainform">
   <div class="subform">
-  <div class="params">
-    {{ param_formset.management_form }}
-    <span class="title">Parameter Constraints</span>
-    <span class="info">(<a href="params" target="_blank">parameters</a>)</span>
-      {% for form in param_formset.forms %}
+  <div class="conds">
+    {{ cond_formset.management_form }}
+    <span class="title">Patient Condition</span>
+      {% for form in cond_formset.forms %}
       <ul>
         {{ form.as_ul }}
       </ul>
       {% endfor %}
-    <input type="submit" name='form-submit' value="Add Parameter" />
+    <input type="submit" name='add-cond' value="Add Condition" />
     <span class="remove">
-    <input type="submit" name='form-submit' value="Remove Parameters" />
-    </span>
-  </div>
-  </div>
-  <div class="subform">
-  <div class="vars">
-    {{ var_formset.management_form }}
-    <span class="title">Variable Constraints</span>
-    <span class="info">(<a href="vars" target="_blank">variables</a>)</span>
-      {% for form in var_formset.forms %}
-      <ul>
-      {{ form.as_ul }}
-      </ul>
-      {% endfor %}
-    <input type="submit" name='form-submit' value="Add Variable" />
-    <span class="remove">
-    <input type="submit" name='form-submit' value="Remove Variables" />
+    <input type="submit" name='del-cond' value="Remove Condition" />
     </span>
   </div>
   </div>
@@ -47,8 +30,8 @@
     <span class="title">{{ matched }} out of {{ total }} individuals match
       your query.</span><br/>
   {% endif %}
-  <input type="submit" name='form-submit' value="Count Matches" />
-  <input type="submit" name='form-submit' value="Submit Query" />
+  <input type="submit" name='qry-cnt' value="Count Matches" />
+  <input type="submit" name='qry-dl' value="Download Simulations" />
 </form>
 
 <pre>

@@ -65,31 +65,36 @@ def validate_forms(request, action, forms):
 
     return (new_forms, new_data, valid_forms, modify_form)
 
+def get_action(submitted, actions):
+    for action in actions:
+        if action in submitted:
+            return action
+    return ''
+
 # Create your views here.
 def index(request):
     log_str = ""
 
     forms = {
-        'params': (guyton.queryforms.ParamCondForm, True),
-        'vars': (guyton.queryforms.VarCondForm, True),
+        'conds': (guyton.queryforms.ClinicalCondForm, True)
         }
 
-    action = request.POST.get('form-submit')
+    action = get_action(request.POST,
+                        ['add-cond', 'del-cond', 'qry-cnt', 'qry-dl'])
     (forms, data, valid, modified) = validate_forms(request, action, forms)
 
     if request.method == 'POST' and valid and not modified:
-        if action == 'Count Matches':
+        if action == 'qry-cnt':
             matches = find(data)
             total = Individual.objects.count()
             matched = str(matches.count())
             return render_to_response('search.html', {
                 'matched': matched,
                 'total': total,
-                'param_formset': forms['params'],
-                'var_formset': forms['vars'],
+                'cond_formset': forms['conds'],
                 'log_str': log_str,
             }, context_instance=RequestContext(request))
-        elif action == 'Submit Query':
+        elif action == 'qry-dl':
             matches = find(data)
             total = matches.count()
             fmt = lambda name, value: "%s %s" % (name.lower(), value)
@@ -132,7 +137,6 @@ def index(request):
             raise Http404(err_msg)
 
     return render_to_response('search.html', {
-        'param_formset': forms['params'],
-        'var_formset': forms['vars'],
+        'cond_formset': forms['conds'],
         'log_str': log_str,
     }, context_instance=RequestContext(request))

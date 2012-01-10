@@ -5,6 +5,8 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.formsets import formset_factory, BaseFormSet
+from django.db import connection
+from django.conf import settings
 
 import guyton.queryforms
 from guyton.models import Individual
@@ -86,6 +88,8 @@ def index(request):
     if request.method == 'POST' and valid and not modified:
         if action == 'qry-cnt':
             matches = find(data)
+            if settings.DEBUG:
+                print connection.queries
             total = Individual.objects.count()
             matched = str(matches.count())
             return render_to_response('search.html', {
@@ -96,6 +100,8 @@ def index(request):
             }, context_instance=RequestContext(request))
         elif action == 'qry-dl':
             matches = find(data)
+            if settings.DEBUG:
+                print connection.queries
             total = matches.count()
             fmt = lambda name, value: "%s %s" % (name.lower(), value)
             count = 1

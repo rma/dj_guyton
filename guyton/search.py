@@ -1,5 +1,8 @@
 import time
 
+from django.db import connection
+from django.conf import settings
+
 from guyton.models import Individual, Variable
 from guyton.queryforms import clin_choices
 
@@ -46,6 +49,13 @@ def find(search_data, just_sql=False):
     #   https://docs.djangoproject.com/en/1.3/ref/models/querysets/
     #
     indiv_vars = indiv_vars.order_by('individual').distinct('individual')
+
+    if settings.DEBUG:
+        print indiv_vars.query
+        print connection.queries
+        print indiv_vars.count()
+        print indiv_vars.query
+        print connection.queries
 
     if just_sql:
         return str(indiv_vars.query)

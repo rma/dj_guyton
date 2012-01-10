@@ -92,12 +92,14 @@ class Individual(models.Model):
 
 class IndivParam(models.Model):
     individual = models.ForeignKey(Individual, db_column='individual')
-    value = models.ForeignKey(ParamValue, db_column='value')
+    parameter = models.ForeignKey(Parameter, db_column='parameter')
+    value = models.Floatfield(db_column = 'value')
     class Meta:
         db_table = u'indiv_param'
 
 class IndivVar(models.Model):
     individual = models.ForeignKey(Individual, db_column='individual')
-    value = models.ForeignKey(VarValue, db_column='value')
+    variable = models.ForeignKey(Variable, db_column='variable')
+    value = models.Floatfield(db_column = 'value')
     class Meta:
         db_table = u'indiv_var'

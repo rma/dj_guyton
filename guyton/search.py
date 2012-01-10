@@ -6,111 +6,53 @@ from guyton.queryforms import clin_choices
 def find(search_data, just_sql=False):
     cond_data = search_data['conds']
 
-    indivs = Individual.objects.all()
+    indiv_params = IndivParam.objects.all()
+    indiv_vars = IndivVar.objects.all()
 
     for c in cond_data:
         if c['cond'] is None:
             continue
+
         # Lookup the ID of the named variable
         cond_var = Variable.objects.get(name__exact=c['cond'])
+
         if c['operator'] == 'EQ':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=cond_var,
-                indivvar__value__value__exact=c['value'])
+            indiv_vars = indiv_vars.filter(
+                variable__exact=cond_var,
+                value__exact=c['value'])
         elif c['operator'] == 'NE':
             # Bug #14645
             # http://code.djangoproject.com/ticket/14645
             pass
         elif c['operator'] == 'LT':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=cond_var,
-                indivvar__value__value__lt=c['value'])
+            indiv_vars = indiv_vars.filter(
+                variable__exact=cond_var,
+                value__lt=c['value'])
         elif c['operator'] == 'LE':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=cond_var,
-                indivvar__value__value__lte=c['value'])
+            indiv_vars = indiv_vars.filter(
+                variable__exact=cond_var,
+                value__lte=c['value'])
         elif c['operator'] == 'GT':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=cond_var,
-                indivvar__value__value__gt=c['value'])
+            indiv_vars = indiv_vars.filter(
+                variable__exact=cond_var,
+                value__gt=c['value'])
         elif c['operator'] == 'GE':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=cond_var,
-                indivvar__value__value__ge=c['value'])
+            indiv_vars = indiv_vars.filter(
+                variable__exact=cond_var,
+                value__ge=c['value'])
+
+    #
+    # The order_by() call is required before the distinct() call, as per:
+    #   https://docs.djangoproject.com/en/1.3/ref/models/querysets/
+    #
+    indiv_vars = indiv_vars.order_by('individual').distinct('individual')
 
     if just_sql:
-        return str(indivs.query)
+        return str(indiv_vars.query)
     else:
-        return indivs.distinct()
-
-    for p in param_data:
-        if p['param'] is None:
-            continue
-        if p['operator'] == 'EQ':
-            indivs = indivs.filter(
-                indivparam__value__parameter__exact=p['param'].id,
-                indivparam__value__value__exact=p['value'])
-        elif p['operator'] == 'NE':
-            # Bug #14645
-            # http://code.djangoproject.com/ticket/14645
-            pass
-            # matches = matches.extra(where=['NOT ("par_value"."parameter" = %s '
-            #     'AND "par_value"."value" = %s)'],
-            #     params=[p['param'].id, p['value']])
-        elif p['operator'] == 'LT':
-            indivs = indivs.filter(
-                indivparam__value__parameter__exact=p['param'].id,
-                indivparam__value__value__lt=p['value'])
-        elif p['operator'] == 'LE':
-            indivs = indivs.filter(
-                indivparam__value__parameter__exact=p['param'].id,
-                indivparam__value__value__lte=p['value'])
-        elif p['operator'] == 'GT':
-            indivs = indivs.filter(
-                indivparam__value__parameter__exact=p['param'].id,
-                indivparam__value__value__gt=p['value'])
-        elif p['operator'] == 'GE':
-            indivs = indivs.filter(
-                indivparam__value__parameter__exact=p['param'].id,
-                indivparam__value__value__gte=p['value'])
-        else:
-            pass
-
-    for v in var_data:
-        if v['var'] is None:
-            continue
-        if v['operator'] == 'EQ':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=v['var'].id,
-                indivvar__value__value__exact=v['value'])
-        elif v['operator'] == 'NE':
-            # Bug #14645
-            # http://code.djangoproject.com/ticket/14645
-            pass
-            # matches = matches.extra(where=['NOT ("var_value"."variable" = %s '
-            #     'AND "var_value"."value" = %s)'],
-            #     params=[(v['var'].id, v['value'])])
-        elif v['operator'] == 'LT':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=v['var'].id,
-                indivvar__value__value__lt=v['value'])
-        elif v['operator'] == 'LE':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=v['var'].id,
-                indivvar__value__value__lte=v['value'])
-        elif v['operator'] == 'GT':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=v['var'].id,
-                indivvar__value__value__gt=v['value'])
-        elif v['operator'] == 'GE':
-            indivs = indivs.filter(
-                indivvar__value__variable__exact=v['var'].id,
-                indivvar__value__value__ge=v['value'])
-
-    if just_sql:
-        return str(indivs.query)
-    else:
-        return indivs.distinct()
+        indiv_ids = indiv_vars.values_list('individual', flat=True)
+        indivs = Individual.objects.filter(id__in=indiv_ids)
+        return indivs
 
 def describe_op(op):
     if op == 'EQ':

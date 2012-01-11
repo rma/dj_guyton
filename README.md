@@ -30,3 +30,13 @@ commands in parallel:
 
 * `python manage.py celeryd -l info`
 * `python manage.py runserver`
+
+Configuring RabbitMQ
+------------------------------------------------------------------------------
+
+Having install RabbitMQ, a virtual host must be configured:
+
+    # sudo rabbitmq
+    # sudo rabbitmqctl add_user $RMQ_USER $RMQ_PWD
+    # sudo rabbitmqctl add_vhost $RMQ_VHOST
+    # sudo rabbitmqctl set_permissions -p $RMQ_VHOST $RMQ_USER ".*" ".*" ".*"
